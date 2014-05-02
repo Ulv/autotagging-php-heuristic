@@ -3,11 +3,25 @@
 /**
  * эвристический анализ текста на предмет выявления тэгов
  *
+ * Исходные тэги должны быть массивом
+ *
  * Алгоритм:
- * - удаляет у тэгов суффиксы/окончания (Стемминг Портера)
+ * - удаляет у тэгов суффиксы/окончания (стемминг Портера)
  * - проверяет наличие в тексте полученных стем (существование)
  * - меряет расстояние Левенштейна между существующим тэгом и
  * словами исходного текста
+ *
+ * Пример использования:
+ * <code>
+ * $text = "Старика Ивана Петровича разбудил шум";
+ * $tags = ["Иван Петрович", "парень", "сТаРиК"]
+ *
+ * $analyzer = new heuristicAnalyzer($tags, $text);
+ * $found = $analyzer->analyze();
+ *
+ * var_dump($found);
+ * // результат будет: Иван Петрович, сТаРиК
+ * </code>
  *
  * PHP version 5
  *
@@ -20,9 +34,10 @@
 class heuristicAnalyzer
 {
     /**
-     * мин. расстояние Левенштейна при котором тэг считается найденным
+     * макс. расстояние Левенштейна между словом в тексте и словом тэга
+     * при которм слово считается найденным
      */
-    const LEVENSTEIN_DISTANCE = 4;
+    const LEVENSTEIN_MAX_DISTANCE = 4;
 
     /**
      * массив тэгов
@@ -127,7 +142,7 @@ class heuristicAnalyzer
             $tagArray = array_filter($tagArray);
 
             /*
-             * нпроверка наличия стем тэгов в тексте
+             * проверка наличия стем тэгов в тексте
              */
             $stems = $this->stemTag($tagArray);
             if (!$this->testTagsExist($this->getText(), $stems)) {
@@ -135,9 +150,9 @@ class heuristicAnalyzer
             }
 
             /*
-             * проверка - расстояние Левенштейна <= заданному
+             * проверка - расстояние Левенштейна (<= заданному)
              */
-            if ($this->testLevenstein($tagArray)) {
+            if ($this->testDistance($tagArray)) {
                 $foundTags[] = $key;
             }
         }
@@ -189,7 +204,7 @@ class heuristicAnalyzer
      * @param $tagArray
      * @return bool
      */
-    private function testLevenstein($tagArray)
+    private function testDistance($tagArray)
     {
         /*
          * разбиваем исходный текст на слова
@@ -205,7 +220,7 @@ class heuristicAnalyzer
         foreach ($words as $word) {
             foreach ($tagArray as $tag) {
                 $distance = levenshtein($word, $tag, 1, 2, 1);
-                if ($distance <= self::LEVENSTEIN_DISTANCE) {
+                if ($distance <= self::LEVENSTEIN_MAX_DISTANCE) {
                     $result[$tag] = $distance;
                 }
             }

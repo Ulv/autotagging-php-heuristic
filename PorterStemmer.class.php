@@ -4,12 +4,14 @@
  * стеммер Портера
  *
  * описание алгоритма - http://tartarus.org/~martin/PorterStemmer/def.txt
+ * оригинальный алгоритм найден в интернете
  *
  * PHP version 5
  *
  * @category
  * @package
- * @author   Vladimir Chmil <vladimir.chmil@gmail.com>
+ * @author   ????
+ * @author Vladimir Chmil <vladimir.chmil@gmail.com>
  * @license
  * @link
  */
