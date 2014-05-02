@@ -3,9 +3,11 @@
 /**
  * эвристический анализ текста на предмет выявления тэгов
  *
- * Ключевые моменты
- * 1. Стемминг Портера (тэги)
- * 2. Расстояние Левенштейна
+ * Алгоритм:
+ * - удаляет у тэгов суффиксы/окончания (Стемминг Портера)
+ * - проверяет наличие в тексте полученных стем (существование)
+ * - меряет расстояние Левенштейна между существующим тэгом и
+ * словами исходного текста
  *
  * PHP version 5
  *
@@ -17,12 +19,28 @@
  */
 class heuristicAnalyzer
 {
-    const LEVENSTEIN_SENSITIVITY = 4;
+    /**
+     * мин. расстояние Левенштейна при котором тэг считается найденным
+     */
+    const LEVENSTEIN_DISTANCE = 4;
 
+    /**
+     * @var array
+     */
     protected $tags = array();
+    /**
+     * @var string
+     */
     protected $text = "";
+    /**
+     * @var
+     */
     protected $stemmer;
 
+    /**
+     * @param array $tags
+     * @param string $text
+     */
     function __construct($tags = [], $text = "")
     {
         mb_internal_encoding('UTF-8');
@@ -68,6 +86,9 @@ class heuristicAnalyzer
         return $this->text;
     }
 
+    /**
+     * @return bool
+     */
     private function validate()
     {
         return !empty($this->tags) && !empty($this->text);
@@ -137,6 +158,10 @@ class heuristicAnalyzer
         return $counter == count($needles);
     }
 
+    /**
+     * @param $tagArray
+     * @return bool
+     */
     private function testLevenstein($tagArray)
     {
         /*
@@ -153,7 +178,7 @@ class heuristicAnalyzer
         foreach ($words as $word) {
             foreach ($tagArray as $tag) {
                 $distance = levenshtein($word, $tag, 1, 2, 1);
-                if ($distance <= self::LEVENSTEIN_SENSITIVITY) {
+                if ($distance <= self::LEVENSTEIN_DISTANCE) {
                     $result[$tag] = $distance;
                 }
             }
