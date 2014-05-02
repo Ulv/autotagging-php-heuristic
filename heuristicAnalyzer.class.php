@@ -25,14 +25,21 @@ class heuristicAnalyzer
     const LEVENSTEIN_DISTANCE = 4;
 
     /**
+     * массив тэгов
+     *
      * @var array
      */
     protected $tags = array();
+
     /**
+     * текст
+     *
      * @var string
      */
     protected $text = "";
+
     /**
+     * экземпляр класса стеммера Портера
      * @var
      */
     protected $stemmer;
@@ -95,6 +102,12 @@ class heuristicAnalyzer
     }
 
     /**
+     * анализ текста на наличие заданных тэгов
+     *
+     * Возвращает массив с ключами массива $this->tags, т.е. если
+     * $this->tags = ['Вася', 'Петя', ...] и в тексте найден только Петя
+     * рез. массив будет [1]
+     *
      * @return bool|array массив ключей массива найденных тэга(ов) или false
      */
     public function analyze()
@@ -107,14 +120,23 @@ class heuristicAnalyzer
 
         $foundTags = array();
         foreach ($this->tags as $key => $tag) {
+            /*
+             * превичная фильрация массива тэгов
+             */
             $tagArray = explode(" ", $tag);
             $tagArray = array_filter($tagArray);
 
+            /*
+             * нпроверка наличия стем тэгов в тексте
+             */
             $stems = $this->stemTag($tagArray);
             if (!$this->testTagsExist($this->getText(), $stems)) {
                 continue;
             }
 
+            /*
+             * проверка - расстояние Левенштейна <= заданному
+             */
             if ($this->testLevenstein($tagArray)) {
                 $foundTags[] = $key;
             }
@@ -124,7 +146,7 @@ class heuristicAnalyzer
     }
 
     /**
-     * "стемит" слова тэга, возвращает рез. массив
+     * стемминг слов тэга, возвращает рез. массив
      *
      * @param $tag
      */
@@ -159,6 +181,11 @@ class heuristicAnalyzer
     }
 
     /**
+     * измеряем расстояние Левенштейна между каждым словом текста и
+     * найденным тэгом.
+     *
+     * Стоимость замены в 2 раза выше стоимости вставки и удаления
+     *
      * @param $tagArray
      * @return bool
      */
