@@ -3,6 +3,10 @@
 /**
  * эвристический анализ текста на предмет выявления тэгов
  *
+ * Ключевые моменты
+ * 1. Стемминг Портера (тэги)
+ * 2. Расстояние Левенштейна
+ *
  * PHP version 5
  *
  * @category
@@ -58,5 +62,15 @@ class heuristicAnalyzer
         return $this->text;
     }
 
+    private function validate()
+    {
+        return !empty($this->tags) && !empty($this->text);
+    }
 
+
+    public function analyze()
+    {
+        var_dump($this->validate());
+
+    }
 } 
