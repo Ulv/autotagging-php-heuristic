@@ -28,11 +28,6 @@ class PorterStemmer
     private $useCache = true;
     private static $stemCache = array();
 
-    public function __construct()
-    {
-        mb_internal_encoding('UTF-8');
-    }
-
     /**
      * стемминг
      */
@@ -48,7 +43,7 @@ class PorterStemmer
 
         $stem = $word;
         if (preg_match(self::RVRE, $word, $p)
-            && isset($p[2]) || empty($p[2])
+            && !empty($p)
         ) {
             $start = $p[1];
             $RV = $p[2];
